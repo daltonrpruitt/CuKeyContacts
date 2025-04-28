@@ -9,7 +9,7 @@ def generate_uuid() -> str:
 
 
 def current_time() -> str:
-    return datetime.utcnow().isoformat()
+    return datetime.now(datetime.timezone.utc).isoformat()
 
 
 @dataclass
