@@ -28,7 +28,7 @@ def temp_people_file(tmp_path):
         )
     ]
     filepath = tmp_path / "people.json"
-    save_people(people, path=filepath)
+    save_people(people, filepath=filepath)
     return filepath, people
 
 def test_edit_person_primary_email(monkeypatch, temp_people_file):
@@ -37,8 +37,8 @@ def test_edit_person_primary_email(monkeypatch, temp_people_file):
     person_id = str(people[0].id)
 
     # Patch load_people and save_people to use our temp file
-    monkeypatch.setattr("storage.load_people", lambda: load_people(path=filepath))
-    monkeypatch.setattr("storage.save_people", lambda data: save_people(data, path=filepath))
+    monkeypatch.setattr("storage.load_people", lambda: load_people(filepath=filepath))
+    monkeypatch.setattr("storage.save_people", lambda data: save_people(data,filepath=filepath))
 
     # Edit primary email
     new_email = "new_email@example.com"
@@ -53,10 +53,11 @@ def test_edit_person_primary_email(monkeypatch, temp_people_file):
         primary_address=None,
         associated_organizations=None,
         last_contacted=None,
-        overwrite_lists=False
+        overwrite_lists=False,
+        filepath=filepath
     )
 
-    updated_people = load_people(path=filepath)
+    updated_people = load_people(filepath=filepath)
     updated_person = updated_people[0]
 
     assert updated_person.primary_email == new_email, "Primary email was not updated correctly."
@@ -66,8 +67,8 @@ def test_edit_person_add_other_phone(monkeypatch, temp_people_file):
     filepath, people = temp_people_file
     person_id = str(people[0].id)
 
-    monkeypatch.setattr("storage.load_people", lambda: load_people(path=filepath))
-    monkeypatch.setattr("storage.save_people", lambda data: save_people(data, path=filepath))
+    monkeypatch.setattr("storage.load_people", lambda: load_people(filepath=filepath))
+    monkeypatch.setattr("storage.save_people", lambda data: save_people(data, filepath=filepath))
 
     # Add other phone numbers
     new_phones = ["555-1234", "555-5678"]
@@ -82,10 +83,11 @@ def test_edit_person_add_other_phone(monkeypatch, temp_people_file):
         primary_address=None,
         associated_organizations=None,
         last_contacted=None,
-        overwrite_lists=False
+        overwrite_lists=False,
+        filepath=filepath
     )
 
-    updated_people = load_people(path=filepath)
+    updated_people = load_people(filepath=filepath)
     updated_person = updated_people[0]
 
     assert all(phone in updated_person.other_phones for phone in new_phones), "Other phones were not appended correctly."

@@ -2,7 +2,7 @@ import typer
 from typing import Optional
 from typing_extensions import Annotated, List
 from models import Person, Business
-from storage import load_people, save_people, load_businesses, save_businesses
+from storage import load_people, save_people, load_businesses, save_businesses, PEOPLE
 from utils import find_by_id, print_table, filter_by_regex, export_csv
 from dataclasses import fields
 from datetime import datetime
@@ -107,12 +107,13 @@ def edit_person(
     primary_address: Optional[str] = typer.Option(None),
     associated_organizations: Optional[List[str]] = typer.Option(None),
     last_contacted: Optional[str] = typer.Option(None, help="Format YYYY-MM-DD"),
-    overwrite_lists: bool = typer.Option(False, help="Overwrite lists instead of appending")
+    overwrite_lists: bool = typer.Option(False, help="Overwrite lists instead of appending"),
+    filepath: str = PEOPLE_FILE
 ):
     """
     Edit (patch) a person entry by ID or name.
     """
-    people = load_people()
+    people = load_people(filepath=filepath)
 
     person = None
 
@@ -180,7 +181,7 @@ def edit_person(
         updated = True
 
     if updated:
-        save_people(people)
+        save_people(people, filepath=filepath)
         typer.echo(f"Person '{person.name}' updated successfully.")
     else:
         typer.echo("No changes provided.")
