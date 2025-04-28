@@ -3,7 +3,7 @@ from typing import Optional
 from typing_extensions import Annotated
 from models import Person, Business
 from storage import load_people, save_people, load_businesses, save_businesses
-from utils import print_table, find_by_name_regex, export_csv
+from utils import find_by_id, print_table, filter_by_regex, export_csv
 from dataclasses import fields
 import uuid
 
@@ -84,7 +84,7 @@ def list_people(output: str = "table",
 @app.command()
 def search_people(query: str, output: str = "table"):
     people = load_people()
-    matches = find_by_name_regex(people, "name", query)
+    matches = filter_by_regex(people, "name", query)
     if output == "table":
         print_table(matches, fields=["id", "name",
                     "primary_email", "primary_phone"])
@@ -119,7 +119,7 @@ def edit_person(
     if id:
         person = find_person_by_id(people, UUID(id))
     elif name:
-        matches = search_people_by_name(people, name)
+        matches = filter_by_regex(people, name)
         if len(matches) == 0:
             typer.echo("No matches found.")
             raise typer.Exit(code=1)

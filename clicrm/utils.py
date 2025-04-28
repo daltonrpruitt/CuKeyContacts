@@ -3,7 +3,7 @@ from typing import List, Any, Optional
 from tabulate import tabulate
 
 
-def find_by_name_regex(items: List[Any], name_field: str, pattern: str) -> List[Any]:
+def filter_by_regex(items: List[Any], name_field: str, pattern: str) -> List[Any]:
     regex = re.compile(pattern, re.IGNORECASE)
     return [item for item in items if regex.search(getattr(item, name_field, ""))]
 
