@@ -5,7 +5,7 @@ from models import Person, Business
 from storage import load_people, save_people, load_businesses, save_businesses
 from utils import find_by_id, print_table, filter_by_regex, export_csv
 from dataclasses import fields
-import uuid
+from datetime import datetime
 
 app = typer.Typer()
 
@@ -43,7 +43,7 @@ def list_people(output: str = "table",
             "--fields", "-F" (Annotated[str, typer.Option, optional): Given a comma-separated string of fields, output the data with those fields. Defaults to None.
     """
     output_fields = ["name", "primary_email", "primary_phone",
-                     "associated_businesses", "created_at"]
+                     "associated_organizations", "created_at"]
     if long:
         output_fields = [field.name for field in fields(Person)]
     elif custom_fields:
@@ -69,7 +69,7 @@ def list_people(output: str = "table",
                 raise ValueError("Invalid custom fields!")
         except Exception as e:
             print(f"Error: {e}")
-            raise e
+            raise typer.Exit(code=1)
 
     people = load_people()
     if output == "table":
@@ -117,14 +117,18 @@ def edit_person(
     person = None
 
     if id:
-        person = find_person_by_id(people, UUID(id))
+        person = find_by_id(people, id)
+        if person is None:
+            typer.echo(f"Could not find person with id of '{id}'.")
+            raise typer.Exit(code=1)
+        
     elif name:
-        matches = filter_by_regex(people, name)
+        matches = filter_by_regex(people, "name", name)
         if len(matches) == 0:
-            typer.echo("No matches found.")
+            typer.echo(f"No matches found for pattern '{name}'.")
             raise typer.Exit(code=1)
         elif len(matches) > 1:
-            typer.echo(f"Multiple matches found. Please use --id to specify:\n")
+            typer.echo("Multiple matches found. Please use --id to specify:\n")
             for p in matches:
                 typer.echo(f"- {p.name} (id={p.id})")
             raise typer.Exit(code=1)
