@@ -1,8 +1,10 @@
 import typer
 from typing import Optional
+from typing_extensions import Annotated
 from models import Person, Business
 from storage import load_people, save_people, load_businesses, save_businesses
 from utils import print_table, find_by_name_regex, export_csv
+from dataclasses import fields
 import uuid
 
 app = typer.Typer()
@@ -30,15 +32,18 @@ def add_person(
 
 
 @app.command()
-def list_people(output: str = "table"):
+def list_people(output: str = "table", long: Annotated[bool, typer.Option("--long", "-l")] = False):
+    output_fields = ["name", "primary_email", "primary_phone", "associated_businesses", "created_at"]
+    if long:
+      output_fields = [field.name for field in fields(Person)]
     people = load_people()
     if output == "table":
-        print_table(people, fields=["id", "name", "primary_email", "primary_phone"])
+        print_table(people, fields=output_fields)
     elif output == "json":
         import json
         typer.echo(json.dumps([p.to_dict() for p in people], indent=2))
     elif output == "csv":
-        export_csv(people, fields=["id", "name", "primary_email", "primary_phone"], filename="people_export.csv")
+        export_csv(people, fields=output_fields, filename="people_export.csv")
 
 
 @app.command()
