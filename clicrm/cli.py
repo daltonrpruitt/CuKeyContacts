@@ -42,9 +42,10 @@ def list_people(output: str = "table",
             "--long", "-l" (Annotated[bool, typer.Option, optional): Output all available fields. Defaults to False.
             "--fields", "-F" (Annotated[str, typer.Option, optional): Given a comma-separated string of fields, output the data with those fields. Defaults to None.
     """
-    output_fields = ["name", "primary_email", "primary_phone", "associated_businesses", "created_at"]
+    output_fields = ["name", "primary_email", "primary_phone",
+                     "associated_businesses", "created_at"]
     if long:
-      output_fields = [field.name for field in fields(Person)]
+        output_fields = [field.name for field in fields(Person)]
     elif custom_fields:
         try:
             output_fields = custom_fields.split(",")
@@ -85,12 +86,14 @@ def search_people(query: str, output: str = "table"):
     people = load_people()
     matches = find_by_name_regex(people, "name", query)
     if output == "table":
-        print_table(matches, fields=["id", "name", "primary_email", "primary_phone"])
+        print_table(matches, fields=["id", "name",
+                    "primary_email", "primary_phone"])
     elif output == "json":
         import json
         typer.echo(json.dumps([p.to_dict() for p in matches], indent=2))
     elif output == "csv":
-        export_csv(matches, fields=["id", "name", "primary_email", "primary_phone"], filename="people_search.csv")
+        export_csv(matches, fields=[
+                   "id", "name", "primary_email", "primary_phone"], filename="people_search.csv")
 
 
 @app.command()
