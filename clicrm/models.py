@@ -23,7 +23,7 @@ class Person:
     other_phones: List[str] = field(default_factory=list)
     associated_organizations: List[str] = field(default_factory=list)  # list of UUIDs
     primary_address: Optional[str] = None
-    date_added: str = field(default_factory=current_time)
+    created_at: str = field(default_factory=current_time)
     last_contacted: Optional[str] = None
 
     def to_dict(self) -> dict:
@@ -45,7 +45,7 @@ class Business:
     associated_people: List[str] = field(default_factory=list)  # list of UUIDs
     primary_address: Optional[str] = None
     website: Optional[str] = None
-    date_added: str = field(default_factory=current_time)
+    created_at: str = field(default_factory=current_time)
 
     def to_dict(self) -> dict:
         return asdict(self)
