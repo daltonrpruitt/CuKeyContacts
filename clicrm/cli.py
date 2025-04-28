@@ -95,6 +95,93 @@ def search_people(query: str, output: str = "table"):
         export_csv(matches, fields=[
                    "id", "name", "primary_email", "primary_phone"], filename="people_search.csv")
 
+@app.command()
+def edit_person(
+    id: Optional[str] = typer.Option(None, help="UUID of the person to edit"),
+    name: Optional[str] = typer.Option(None, help="Regex pattern to match the person's name"),
+    preferred_name: Optional[str] = typer.Option(None),
+    primary_email: Optional[str] = typer.Option(None),
+    other_emails: Optional[List[str]] = typer.Option(None),
+    primary_phone: Optional[str] = typer.Option(None),
+    other_phones: Optional[List[str]] = typer.Option(None),
+    primary_address: Optional[str] = typer.Option(None),
+    associated_organizations: Optional[List[str]] = typer.Option(None),
+    last_contacted: Optional[str] = typer.Option(None, help="Format YYYY-MM-DD"),
+    overwrite_lists: bool = typer.Option(False, help="Overwrite lists instead of appending")
+):
+    """
+    Edit (patch) a person entry by ID or name.
+    """
+    people = load_people()
+
+    person = None
+
+    if id:
+        person = find_person_by_id(people, UUID(id))
+    elif name:
+        matches = search_people_by_name(people, name)
+        if len(matches) == 0:
+            typer.echo("No matches found.")
+            raise typer.Exit(code=1)
+        elif len(matches) > 1:
+            typer.echo(f"Multiple matches found. Please use --id to specify:\n")
+            for p in matches:
+                typer.echo(f"- {p.name} (id={p.id})")
+            raise typer.Exit(code=1)
+        else:
+            person = matches[0]
+    else:
+        typer.echo("Please specify either --id or --name to identify the person.")
+        raise typer.Exit(code=1)
+
+    updated = False
+
+    # Patch fields if provided
+    if preferred_name is not None:
+        person.preferred_name = preferred_name
+        updated = True
+    if primary_email is not None:
+        person.primary_email = primary_email
+        updated = True
+    if primary_phone is not None:
+        person.primary_phone = primary_phone
+        updated = True
+    if primary_address is not None:
+        person.primary_address = primary_address
+        updated = True
+    if other_emails:
+        if overwrite_lists:
+            person.other_emails = other_emails
+        else:
+            person.other_emails.extend(other_emails)
+        updated = True
+    if other_phones:
+        if overwrite_lists:
+            person.other_phones = other_phones
+        else:
+            person.other_phones.extend(other_phones)
+        updated = True
+    if associated_organizations:
+        if overwrite_lists:
+            person.associated_organizations = associated_organizations
+        else:
+            person.associated_organizations.extend(associated_organizations)
+        updated = True
+    if last_contacted:
+        try:
+            person.last_contacted = datetime.strptime(last_contacted, "%Y-%m-%d")
+        except ValueError:
+            typer.echo("Invalid date format for last_contacted. Use YYYY-MM-DD.")
+            raise typer.Exit(code=1)
+        updated = True
+
+    if updated:
+        save_people(people)
+        typer.echo(f"Person '{person.name}' updated successfully.")
+    else:
+        typer.echo("No changes provided.")
+
+
 
 @app.command()
 def delete_person(person_id: str):
