@@ -32,10 +32,37 @@ def add_person(
 
 
 @app.command()
-def list_people(output: str = "table", long: Annotated[bool, typer.Option("--long", "-l")] = False):
+def list_people(output: str = "table",
+                long: Annotated[bool, typer.Option("--long", "-l")] = False,
+                custom_fields: Annotated[str, typer.Option("--fields", "-F")] = None):
     output_fields = ["name", "primary_email", "primary_phone", "associated_businesses", "created_at"]
     if long:
       output_fields = [field.name for field in fields(Person)]
+    elif custom_fields:
+        try:
+            output_fields = custom_fields.split(",")
+            all_fields = [field.name for field in fields(Person)]
+            valid = True
+            for f in output_fields:
+                if f not in all_fields:
+                    print(f"'{f}' is not a valid field!")
+                    valid = False
+            if not valid:
+                print("Available fields are:")
+                for i, field in enumerate(all_fields):
+                    print(f"{field}", end="")
+                    end_c = ""
+                    if (i+1) % 4 == 0:
+                        end_c = "\n"
+                    if i+1 < len(all_fields):
+                        print(", ", end=end_c)
+                    else:
+                        print("")
+                raise ValueError("Invalid custom fields!")
+        except Exception as e:
+            print(f"Error: {e}")
+            raise e
+
     people = load_people()
     if output == "table":
         print_table(people, fields=output_fields)
