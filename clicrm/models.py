@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field, asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 import uuid
 
@@ -9,7 +9,7 @@ def generate_uuid() -> str:
 
 
 def current_time() -> str:
-    return datetime.now(datetime.timezone.utc).isoformat()
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%M:%S.%f")
 
 
 @dataclass
