@@ -14,7 +14,7 @@ def temp_people_file(tmp_path):
     """Fixture to create a temporary people.json for testing."""
     people = [
         Person(
-            id=uuid4(),
+            id=str(uuid4()),
             name="John Doe",
             preferred_name="Johnny",
             primary_email="john@example.com",
@@ -23,7 +23,7 @@ def temp_people_file(tmp_path):
             other_phones=[],
             associated_organizations=[],
             primary_address="123 Main St",
-            date_added=datetime.now(),
+            created_at=str(datetime.now()),
             last_contacted=None
         )
     ]
