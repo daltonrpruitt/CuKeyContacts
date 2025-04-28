@@ -35,6 +35,13 @@ def add_person(
 def list_people(output: str = "table",
                 long: Annotated[bool, typer.Option("--long", "-l")] = False,
                 custom_fields: Annotated[str, typer.Option("--fields", "-F")] = None):
+    """List the current people in the database.
+
+    Args:
+            output (str, optional): How to output the data; either "table" (stdout), "json" (file), or "csv" (file). Defaults to "table".
+            "--long", "-l" (Annotated[bool, typer.Option, optional): Output all available fields. Defaults to False.
+            "--fields", "-F" (Annotated[str, typer.Option, optional): Given a comma-separated string of fields, output the data with those fields. Defaults to None.
+    """
     output_fields = ["name", "primary_email", "primary_phone", "associated_businesses", "created_at"]
     if long:
       output_fields = [field.name for field in fields(Person)]
