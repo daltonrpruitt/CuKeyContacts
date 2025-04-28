@@ -1,6 +1,6 @@
 import typer
 from typing import Optional
-from typing_extensions import Annotated
+from typing_extensions import Annotated, List
 from models import Person, Business
 from storage import load_people, save_people, load_businesses, save_businesses
 from utils import find_by_id, print_table, filter_by_regex, export_csv
